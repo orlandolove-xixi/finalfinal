@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据预览 - 四川省数据分析平台</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 自定义配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                        secondary: '#3b82f6',
+                        accent: '#bfdbfe',
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        danger: '#ef4444',
+                        dark: '#1e293b',
+                        light: '#f8fafc'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .bg-gradient-blue {
+                background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            }
+            .card-shadow {
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.5s ease-in;
+            }
+            .animate-slide-up {
+                animation: slideUp 0.5s ease-out;
+            }
+            .hover-scale {
+                transition: transform 0.2s ease;
+            }
+            .hover-scale:hover {
+                transform: scale(1.02);
+            }
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans text-gray-800">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-md fixed top-0 left-0 right-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <i class="fa fa-bar-chart text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-primary">四川省数据分析平台</h1>
+            </div>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="/" class="text-gray-600 hover:text-primary transition-colors">首页</a></li>
+                    <li><a href="/preview" class="text-primary font-medium border-b-2 border-primary pb-1">数据预览</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 主内容区域 -->
+    <main class="container mx-auto px-4 pt-24 pb-16 animate-fade-in">
+        <div class="max-w-5xl mx-auto">
+            <!-- 标题区域 -->
+            <div class="mb-8 text-center animate-slide-up">
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-3">数据预览</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">查看处理后的数据表格，您可以检查数据的准确性和完整性。</p>
+            </div>
+
+            <!-- 数据预览卡片 -->
+            <div class="bg-white rounded-xl p-6 mb-8 card-shadow hover-scale">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-dark">处理结果预览</h3>
+                    <div class="flex space-x-2">
+                        <button id="refreshTable" class="bg-primary/10 text-primary px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-primary/20 transition-colors">
+                            <i class="fa fa-refresh"></i>
+                            <span>刷新</span>
+                        </button>
+                        <button id="exportExcel" class="bg-success/10 text-success px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-success/20 transition-colors">
+                            <i class="fa fa-download"></i>
+                            <span>导出</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 数据表格预览 -->
+                <div class="table-responsive mb-4">
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fa fa-database text-4xl mb-3"></i>
+                        <p>请先上传并处理一个Excel文件以查看数据预览</p>
+                    </div>
+                </div>
+                
+                <!-- 数据统计信息 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                        <p class="text-sm text-blue-600 font-medium">原始数据行数</p>
+                        <p id="originalRows" class="text-2xl font-bold text-primary">--</p>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                        <p class="text-sm text-blue-600 font-medium">原始数据列数</p>
+                        <p id="originalCols" class="text-2xl font-bold text-primary">--</p>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+                        <p class="text-sm text-green-600 font-medium">处理后行数</p>
+                        <p id="processedRows" class="text-2xl font-bold text-success">--</p>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+                        <p class="text-sm text-green-600 font-medium">处理后列数</p>
+                        <p id="processedCols" class="text-2xl font-bold text-success">--</p>
+                    </div>
+                </div>
+                
+                <!-- 下载链接 -->
+                <div class="hidden" id="downloadSection">
+                    <a href="#" id="downloadLink" class="bg-primary text-white px-6 py-3 rounded-lg inline-flex items-center space-x-2 hover:bg-primary/90 transition-colors">
+                        <i class="fa fa-download"></i>
+                        <span>下载处理后的Excel文件</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 使用提示卡片 -->
+            <div class="bg-gray-50 rounded-xl p-6 mb-8 border border-gray-200 animate-slide-up" style="animation-delay: 0.2s;">
+                <h3 class="text-lg font-bold text-dark mb-3 flex items-center">
+                    <i class="fa fa-lightbulb-o text-warning mr-2"></i>
+                    数据预览提示
+                </h3>
+                <ul class="space-y-2 text-gray-700">
+                    <li class="flex items-start">
+                        <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                        <span>表格中的空值以"-"显示</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                        <span>可以水平滚动查看所有列</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                        <span>点击"导出"按钮可以将预览数据导出为Excel</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fa fa-info-circle text-primary mt-1 mr-2"></i>
+                        <span>如果数据有问题，可以返回首页重新上传处理</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="text-center animate-slide-up" style="animation-delay: 0.3s;">
+                <a href="/" class="inline-flex items-center space-x-2 bg-gray-800 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors">
+                    <i class="fa fa-arrow-left"></i>
+                    <span>返回首页</span>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="text-center">
+                <div class="flex items-center justify-center mb-4">
+                    <i class="fa fa-bar-chart text-primary text-2xl mr-2"></i>
+                    <h2 class="text-xl font-bold">四川省数据分析平台</h2>
+                </div>
+                <p class="text-gray-400 mb-4">高效、准确的Excel数据处理工具</p>
+                <div class="flex justify-center space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fa fa-question-circle"></i> 帮助中心
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fa fa-file-text-o"></i> 使用文档
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fa fa-envelope-o"></i> 联系我们
+                    </a>
+                </div>
+                <p class="text-gray-500 mt-6 text-sm">&copy; 2024 四川省数据分析平台. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 从URL参数中获取数据（如果有）
+            const urlParams = new URLSearchParams(window.location.search);
+            const tableHtml = urlParams.get('table');
+            const filename = urlParams.get('filename');
+            
+            if (tableHtml && filename) {
+                // 更新表格
+                const tableContainer = document.querySelector('.table-responsive');
+                tableContainer.innerHTML = tableHtml;
+                
+                // 显示下载按钮
+                document.getElementById('downloadSection').classList.remove('hidden');
+                document.getElementById('downloadLink').href = `/download/${filename}`;
+                
+                // 更新导出按钮功能
+                document.getElementById('exportExcel').addEventListener('click', function() {
+                    window.location.href = `/download/${filename}`;
+                });
+            }
+            
+            // 刷新表格按钮事件
+            document.getElementById('refreshTable').addEventListener('click', function() {
+                // 显示加载动画
+                const tableContainer = document.querySelector('.table-responsive');
+                const originalContent = tableContainer.innerHTML;
+                tableContainer.innerHTML = '<div class="text-center py-8 text-gray-500"><i class="fa fa-circle-o-notch fa-spin text-2xl mb-2"></i><p>正在刷新数据...</p></div>';
+                
+                // 模拟刷新延迟
+                setTimeout(function() {
+                    if (tableHtml && filename) {
+                        tableContainer.innerHTML = tableHtml;
+                    } else {
+                        tableContainer.innerHTML = '<div class="text-center py-8 text-gray-500"><i class="fa fa-database text-4xl mb-3"></i><p>请先上传并处理一个Excel文件以查看数据预览</p></div>';
+                    }
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel数据处理工具 - 四川省数据分析平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36CFC9',
+                        accent: '#722ED1',
+                        success: '#52C41A',
+                        warning: '#FAAD14',
+                        error: '#F5222D',
+                        info: '#1890FF',
+                        light: '#F5F7FA',
+                        dark: '#1D2129'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .shadow-soft {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+            .shadow-hover {
+                transition: all 0.3s ease;
+            }
+            .shadow-hover:hover {
+                box-shadow: 0 8px 30px rgba(22, 93, 255, 0.15);
+                transform: translateY(-2px);
+            }
+            .bg-gradient-custom {
+                background: linear-gradient(135deg, #165DFF 0%, #722ED1 100%);
+            }
+            .text-gradient {
+                background: linear-gradient(135deg, #165DFF 0%, #722ED1 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                text-fill-color: transparent;
+            }
+            .animate-float {
+                animation: float 6s ease-in-out infinite;
+            }
+            @keyframes float {
+                0% {
+                    transform: translateY(0px);
+                }
+                50% {
+                    transform: translateY(-10px);
+                }
+                100% {
+                    transform: translateY(0px);
+                }
+            }
+        }
+    </style>
+</head>
+<body class="bg-light min-h-screen">
+    <header class="bg-gradient-custom text-white py-16 px-4 relative overflow-hidden">
+        <!-- 装饰元素 -->
+        <div class="absolute top-0 left-0 w-full h-full opacity-10">
+            <div class="absolute top-10 left-10 w-40 h-40 rounded-full bg-white"></div>
+            <div class="absolute bottom-10 right-10 w-60 h-60 rounded-full bg-white"></div>
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-white"></div>
+        </div>
+        
+        <div class="container mx-auto max-w-5xl relative z-10">
+            <h1 class="text-[clamp(2.5rem,5vw,4rem)] font-bold text-center mb-6 leading-tight">
+                <i class="fa fa-table mr-3"></i>Excel数据智能处理工具
+            </h1>
+            <p class="text-center text-white/90 max-w-3xl mx-auto text-lg mb-8">
+                专为四川省县域数据设计，自动提取指标名称与县域信息，智能整合分散表格，一键生成标准化数据报表
+            </p>
+            
+            <div class="flex justify-center">
+                <div class="bg-white/10 backdrop-blur-md rounded-lg px-6 py-4 inline-flex items-center">
+                    <i class="fa fa-lightbulb-o text-yellow-300 text-2xl mr-3"></i>
+                    <span>支持多表格、跨页数据智能识别与整合</span>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <main class="container mx-auto max-w-5xl px-4 py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+            <!-- 功能卡片 -->
+            <div class="bg-white rounded-xl shadow-soft p-6 shadow-hover">
+                <div class="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-5">
+                    <i class="fa fa-list-ul text-primary text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-dark mb-3">指标名称去重</h3>
+                <p class="text-gray-600">自动识别并提取Excel中的指标名称，去除重复项，确保每个指标只出现一次</p>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-soft p-6 shadow-hover">
+                <div class="w-14 h-14 bg-secondary/10 rounded-lg flex items-center justify-center mb-5">
+                    <i class="fa fa-map-marker text-secondary text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-dark mb-3">县域名称识别</h3>
+                <p class="text-gray-600">智能识别Excel中所有县域名称，自动整合并按顺序排列，确保数据完整性</p>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-soft p-6 shadow-hover">
+                <div class="w-14 h-14 bg-accent/10 rounded-lg flex items-center justify-center mb-5">
+                    <i class="fa fa-refresh text-accent text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-dark mb-3">数据一一对应</h3>
+                <p class="text-gray-600">严格保持原始数据的对应关系，确保处理后的表格数据准确无误</p>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-soft p-6 md:p-8 mb-12">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-dark flex items-center">
+                    <i class="fa fa-upload text-primary mr-3"></i>上传Excel文件
+                </h2>
+                <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">支持.xlsx/.xls</span>
+            </div>
+            
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                <div class="bg-error/10 text-error p-4 rounded-lg mb-6 flex items-start">
+                    <i class="fa fa-exclamation-circle mt-1 mr-3 text-lg"></i>
+                    <span>{{ message }}</span>
+                </div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+            
+            <form method="post" enctype="multipart/form-data" class="space-y-6">
+                <div id="dropZone" class="border-2 border-dashed border-gray-300 rounded-lg p-10 text-center transition-all duration-300 hover:border-primary/50 hover:bg-primary/5 cursor-pointer">
+                    <div class="animate-float mb-6">
+                        <i class="fa fa-file-excel-o text-6xl text-primary/70"></i>
+                    </div>
+                    <input type="file" name="file" id="fileInput" accept=".xlsx,.xls" class="hidden" />
+                    <label for="fileInput" class="cursor-pointer block text-primary hover:text-primary/80 font-medium transition-smooth text-lg mb-2">
+                        点击上传或拖放文件到此处
+                    </label>
+                    <p class="text-gray-500">支持包含多个重复表格结构的Excel文件</p>
+                    
+                    <div class="mt-6 flex justify-center">
+                        <div class="inline-flex items-center px-4 py-2 bg-gray-100 rounded-lg">
+                            <i class="fa fa-info-circle text-gray-500 mr-2"></i>
+                            <span class="text-sm text-gray-600">处理后将自动提取指标作为行、县域作为列</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="pt-4">
+                    <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-4 px-6 rounded-lg transition-all duration-300 flex items-center justify-center text-lg shadow-lg shadow-primary/20">
+                        <i class="fa fa-cog fa-spin mr-3"></i>智能处理数据
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- 处理流程 -->
+            <div class="bg-white rounded-xl shadow-soft p-6">
+                <h2 class="text-xl font-bold text-dark mb-4 flex items-center">
+                    <i class="fa fa-sitemap text-success mr-2"></i>处理流程
+                </h2>
+                <div class="space-y-4">
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                            <i class="fa fa-check text-success"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-dark">1. 上传文件</h4>
+                            <p class="text-gray-600 text-sm">上传包含四川省县域数据的Excel文件</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                            <i class="fa fa-check text-success"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-dark">2. 智能识别</h4>
+                            <p class="text-gray-600 text-sm">系统自动识别指标名称和县域名称</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                            <i class="fa fa-check text-success"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-dark">3. 数据整合</h4>
+                            <p class="text-gray-600 text-sm">提取唯一指标，整理所有县域数据</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                            <i class="fa fa-check text-success"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-dark">4. 下载结果</h4>
+                            <p class="text-gray-600 text-sm">获取标准化处理后的Excel文件</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 注意事项 -->
+            <div class="bg-white rounded-xl shadow-soft p-6">
+                <h2 class="text-xl font-bold text-dark mb-4 flex items-center">
+                    <i class="fa fa-exclamation-triangle text-warning mr-2"></i>注意事项
+                </h2>
+                <ul class="space-y-3 text-gray-700">
+                    <li class="flex items-start">
+                        <i class="fa fa-circle text-warning text-xs mt-1.5 mr-2"></i>
+                        <span>确保Excel文件中表格的表头格式统一，A列为"指标"，B列为"单位"</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fa fa-circle text-warning text-xs mt-1.5 mr-2"></i>
+                        <span>系统会自动跳过空行和分类标题（如"一、基本情况"等）</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fa fa-circle text-warning text-xs mt-1.5 mr-2"></i>
+                        <span>处理大型文件可能需要一些时间，请耐心等待</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fa fa-circle text-warning text-xs mt-1.5 mr-2"></i>
+                        <span>如有特殊格式数据，请在上传前确保表格结构清晰</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="bg-dark text-white/80 py-10 px-4 mt-16">
+        <div class="container mx-auto max-w-5xl">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold text-white mb-4">四川省数据处理平台</h3>
+                    <p class="text-white/60">专业的Excel数据整理工具，为您提供高效的数据处理服务</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-3">联系我们</h4>
+                    <p class="text-white/60">如有问题或建议，请随时联系我们</p>
+                    <div class="flex space-x-4 mt-3">
+                        <a href="#" class="text-white/60 hover:text-white transition-smooth"><i class="fa fa-envelope"></i></a>
+                        <a href="#" class="text-white/60 hover:text-white transition-smooth"><i class="fa fa-phone"></i></a>
+                        <a href="#" class="text-white/60 hover:text-white transition-smooth"><i class="fa fa-weixin"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-3">使用帮助</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-white/60 hover:text-white transition-smooth">使用教程</a></li>
+                        <li><a href="#" class="text-white/60 hover:text-white transition-smooth">常见问题</a></li>
+                        <li><a href="#" class="text-white/60 hover:text-white transition-smooth">数据格式要求</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-white/10 mt-8 pt-6 text-center text-white/60">
+                <p>&copy; 2024 四川省数据处理工具. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // 文件拖放功能增强
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        
+        // 阻止默认的拖放行为
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        // 添加高亮效果
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            dropZone.classList.add('border-primary');
+            dropZone.classList.add('bg-primary/5');
+        }
+        
+        function unhighlight() {
+            dropZone.classList.remove('border-primary');
+            dropZone.classList.remove('bg-primary/5');
+        }
+        
+        // 处理文件拖放
+        dropZone.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            e.preventDefault(); // 防止浏览器默认行为
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files.length) {
+                fileInput.files = files;
+                // 添加上传提示效果
+                dropZone.classList.add('bg-success/10');
+                dropZone.classList.add('border-success');
+                
+                // 获取表单元素并提交
+                const form = fileInput.closest('form');
+                if (form) {
+                    form.submit();
+                }
+            }
+        }
+        
+        // 点击上传区域也可以选择文件
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        // 文件选择后提交表单
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                // 添加上传提示效果
+                dropZone.classList.add('bg-success/10');
+                dropZone.classList.add('border-success');
+                
+                // 获取表单元素并提交
+                const form = fileInput.closest('form');
+                if (form) {
+                    form.submit();
+                }
+            }
+        });
+        
+        // 添加页面滚动动画
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId !== '#') {
+                    document.querySelector(targetId).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

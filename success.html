@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>处理成功 - 四川省数据分析平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36CFC9',
+                        accent: '#722ED1',
+                        success: '#52C41A',
+                        warning: '#FAAD14',
+                        error: '#F5222D',
+                        info: '#1890FF',
+                        light: '#F5F7FA',
+                        dark: '#1D2129'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .shadow-soft {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+            .shadow-hover {
+                transition: all 0.3s ease;
+            }
+            .shadow-hover:hover {
+                box-shadow: 0 8px 30px rgba(22, 93, 255, 0.15);
+                transform: translateY(-2px);
+            }
+            .bg-gradient-custom {
+                background: linear-gradient(135deg, #165DFF 0%, #722ED1 100%);
+            }
+            .animate-float {
+                animation: float 6s ease-in-out infinite;
+            }
+            @keyframes float {
+                0% {
+                    transform: translateY(0px);
+                }
+                50% {
+                    transform: translateY(-10px);
+                }
+                100% {
+                    transform: translateY(0px);
+                }
+            }
+            .animate-pulse-custom {
+                animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            @keyframes pulse {
+                0%, 100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.7;
+                }
+            }
+        }
+    </style>
+</head>
+<body class="bg-light min-h-screen">
+    <header class="bg-gradient-custom text-white py-6 px-4">
+        <div class="container mx-auto max-w-5xl">
+            <h1 class="text-xl font-bold flex items-center">
+                <i class="fa fa-table mr-3"></i>四川省数据处理平台
+            </h1>
+        </div>
+    </header>
+    
+    <main class="container mx-auto max-w-5xl px-4 py-12">
+        <!-- 成功通知横幅 -->
+        <div class="bg-success/10 border border-success/20 rounded-xl p-4 mb-8 flex items-center">
+            <div class="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center mr-4 flex-shrink-0">
+                <i class="fa fa-check text-success text-lg"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-dark">处理任务已完成</h3>
+                <p class="text-gray-600">您的Excel数据已成功整理，指标和县域信息已正确提取</p>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- 左侧：主要内容 -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-xl shadow-soft p-6 md:p-8 mb-8 shadow-hover">
+                    <div class="flex flex-col items-center text-center mb-8">
+                        <div class="w-24 h-24 rounded-full bg-success/10 flex items-center justify-center mb-5 animate-float">
+                            <i class="fa fa-check-circle text-4xl text-success"></i>
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-bold text-dark mb-3">数据处理成功！</h2>
+                        <p class="text-gray-600 max-w-lg">您的Excel文件已成功处理，所有指标名称和县域信息已正确提取并整理</p>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-xl p-5 mb-8">
+                        <h3 class="font-semibold text-dark mb-4 flex items-center text-lg">
+                            <i class="fa fa-file-excel-o text-primary mr-3"></i>处理结果详情
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <p class="text-sm text-gray-500 mb-2">原始文件名</p>
+                                <p class="text-dark font-medium truncate">{{ original_filename }}</p>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <p class="text-sm text-gray-500 mb-2">生成的文件名</p>
+                                <p class="text-dark font-medium truncate">{{ display_filename }}</p>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <p class="text-sm text-gray-500 mb-2">处理后数据行数</p>
+                                <p class="text-dark font-medium">{{ processed_rows }}</p>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <p class="text-sm text-gray-500 mb-2">处理后数据列数</p>
+                                <p class="text-dark font-medium">{{ processed_cols }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="/download/{{ output_filename }}?display_name={{ display_filename }}" class="bg-primary hover:bg-primary/90 text-white font-medium py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center text-lg shadow-lg shadow-primary/20">
+                            <i class="fa fa-download mr-3"></i>下载处理结果
+                        </a>
+                        <a href="/" class="border border-gray-300 hover:border-primary hover:text-primary text-dark font-medium py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center text-lg">
+                            <i class="fa fa-upload mr-3"></i>上传新文件
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 处理结果预览 -->
+                <div class="bg-white rounded-xl shadow-soft p-6 md:p-8 shadow-hover">
+                    <h3 class="font-semibold text-dark mb-4 flex items-center text-lg">
+                        <i class="fa fa-eye text-info mr-3"></i>处理结果预览
+                    </h3>
+                    <div class="bg-gray-50 rounded-lg p-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div class="flex items-start">
+                                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3 flex-shrink-0">
+                                    <i class="fa fa-list-ul text-primary"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-dark">指标名称提取</h4>
+                                    <p class="text-gray-600 text-sm">已从第一列提取所有唯一指标，去除重复项</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center mr-3 flex-shrink-0">
+                                    <i class="fa fa-map-marker text-secondary"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-dark">县域信息整理</h4>
+                                    <p class="text-gray-600 text-sm">已识别并整理所有县域名称，作为列索引</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center mr-3 flex-shrink-0">
+                                <i class="fa fa-check-square-o text-success"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-dark">数据对应关系</h4>
+                                <p class="text-gray-600 text-sm">所有数据严格保持原始对应关系，确保准确性</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧：快速操作和提示 -->
+            <div class="lg:col-span-1">
+                <!-- 快速操作 -->
+                <div class="bg-white rounded-xl shadow-soft p-6 mb-8 shadow-hover">
+                    <h3 class="font-semibold text-dark mb-4 flex items-center text-lg">
+                        <i class="fa fa-bolt text-warning mr-3"></i>快速操作
+                    </h3>
+                    <div class="space-y-3">
+                        <a href="/download/{{ output_filename }}?display_name={{ display_filename }}" class="block w-full bg-gray-100 hover:bg-gray-200 text-dark font-medium py-3 px-5 rounded-lg transition-all duration-300 flex items-center">
+                            <i class="fa fa-download text-primary mr-3"></i>下载文件
+                        </a>
+                        <a href="/" class="block w-full bg-gray-100 hover:bg-gray-200 text-dark font-medium py-3 px-5 rounded-lg transition-all duration-300 flex items-center">
+                            <i class="fa fa-upload text-success mr-3"></i>处理新文件
+                        </a>
+                        <a href="#" class="block w-full bg-gray-100 hover:bg-gray-200 text-dark font-medium py-3 px-5 rounded-lg transition-all duration-300 flex items-center">
+                            <i class="fa fa-question-circle text-info mr-3"></i>使用帮助
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 使用提示 -->
+                <div class="bg-white rounded-xl shadow-soft p-6 shadow-hover">
+                    <h3 class="font-semibold text-dark mb-4 flex items-center text-lg">
+                        <i class="fa fa-lightbulb-o text-yellow-500 mr-3"></i>使用提示
+                    </h3>
+                    <ul class="space-y-3 text-gray-700">
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-success mt-1 mr-3"></i>
+                            <span class="text-sm">建议使用Excel 2016或更高版本打开处理后的文件</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-success mt-1 mr-3"></i>
+                            <span class="text-sm">如需进一步处理数据，请使用Excel的数据透视表功能</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-success mt-1 mr-3"></i>
+                            <span class="text-sm">处理后的文件可直接用于数据分析和可视化</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-success mt-1 mr-3"></i>
+                            <span class="text-sm">如有问题，请保存原始文件以便重新处理</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="bg-dark text-white/80 py-10 px-4 mt-16">
+        <div class="container mx-auto max-w-5xl">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold text-white mb-4">四川省数据处理平台</h3>
+                    <p class="text-white/60">专业的Excel数据整理工具，为您提供高效的数据处理服务</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-3">联系我们</h4>
+                    <p class="text-white/60">如有问题或建议，请随时联系我们</p>
+                    <div class="flex space-x-4 mt-3">
+                        <a href="#" class="text-white/60 hover:text-white transition-smooth"><i class="fa fa-envelope"></i></a>
+                        <a href="#" class="text-white/60 hover:text-white transition-smooth"><i class="fa fa-phone"></i></a>
+                        <a href="#" class="text-white/60 hover:text-white transition-smooth"><i class="fa fa-weixin"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-3">使用帮助</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-white/60 hover:text-white transition-smooth">使用教程</a></li>
+                        <li><a href="#" class="text-white/60 hover:text-white transition-smooth">常见问题</a></li>
+                        <li><a href="#" class="text-white/60 hover:text-white transition-smooth">数据格式要求</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-white/10 mt-8 pt-6 text-center text-white/60">
+                <p>&copy; 2024 四川省数据处理工具. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // 添加页面动画和交互效果
+        document.addEventListener('DOMContentLoaded', function() {
+            // 为成功图标添加动画效果
+            const successIcon = document.querySelector('.fa-check-circle');
+            successIcon.classList.add('animate-pulse-custom');
+            
+            // 为下载按钮添加交互效果
+            const downloadButton = document.querySelector('a[href^="/download"]');
+            downloadButton.addEventListener('click', function(e) {
+                this.innerHTML = '<i class="fa fa-spinner fa-spin mr-3"></i>正在准备下载...';
+                this.disabled = true;
+                
+                // 模拟下载延迟
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fa fa-check mr-3"></i>下载已开始';
+                    setTimeout(() => {
+                        this.innerHTML = '<i class="fa fa-download mr-3"></i>下载处理结果';
+                        this.disabled = false;
+                    }, 2000);
+                }, 1000);
+            });
+            
+            // 为快速操作按钮添加悬停效果
+            const quickActions = document.querySelectorAll('.bg-gray-100');
+            quickActions.forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    this.classList.add('scale-105');
+                });
+                button.addEventListener('mouseleave', function() {
+                    this.classList.remove('scale-105');
+                });
+            });
+            
+            // 添加页面滚动动画
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId !== '#') {
+                        document.querySelector(targetId).scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
